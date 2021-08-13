@@ -2,11 +2,11 @@ import React from 'react'
 import SingIn from '../sign-in/sign-in.component'
 import SignUp from '../sign-up/sign-up.component'
 
-import './sing-in-sing-up.styles.scss'
+import './sign-in-sign-up.styles.scss'
 
 const SignInSingUp = () => {
     return(
-        <div className='sign-in-sing-up'>
+        <div className='sign-in-sign-up'>
             <SingIn />
             <SignUp />
         </div>
