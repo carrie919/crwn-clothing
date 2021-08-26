@@ -1,6 +1,6 @@
-import firebase from 'firebase/app'
-import 'firebase/firestore'
-import 'firebase/auth'
+import firebase from 'firebase/app';
+import 'firebase/firestore';
+import 'firebase/auth';
 
 const config = {
     apiKey: "AIzaSyAhiqhIgZfCuW3AcHWPeKBXF-gm-fNavAw",
@@ -14,13 +14,13 @@ const config = {
 export const createUserProfileDocument = async (userAuth , additionalProps) => {
     if(!userAuth) return;
 
-    const userRef = firestore.doc(`users/${userAuth.uid}`)
+    const userRef = firestore.doc(`users/${userAuth.uid}`);
 
-    const snapshot = await userRef.get()
+    const snapshot = await userRef.get();
 
     if(!snapshot.exists){
-        const { displayName, email} = userAuth
-        const createdAt = new Date()
+        const { displayName, email} = userAuth;
+        const createdAt = new Date();
         
         try {
             await userRef.set({
@@ -28,13 +28,43 @@ export const createUserProfileDocument = async (userAuth , additionalProps) => {
                 email,
                 createdAt,
                 ...additionalProps
-            })
+            });
         } catch (error) {
-            console.log('error cteating user', error.message)
+            console.log('error cteating user', error.message);
         }
     }
 
-    return userRef
+    return userRef;
+}
+
+export const addCollectionDocuments = async (collectionKey, objectsToAdd) => {
+    const collectionRef = firestore.collection(collectionKey);
+    
+    const batch = firestore.batch();
+    objectsToAdd.forEach(obj => {
+        const docRef = collectionRef.doc();
+        batch.set(docRef, obj);
+    });
+
+    return await batch.commit();
+}
+
+export const convertCollectionSnapshotToMap = (collections) => {
+    const transformedCollections = collections.docs.map(doc => {
+        const {title, items} = doc.data();
+
+        return({
+            id: doc.id,
+            routeName: encodeURI(title.toLowerCase()),
+            title,
+            items
+        })
+    });
+    
+    return transformedCollections.reduce((accumulator, collection) =>{
+        accumulator[collection.title.toLowerCase()] = collection;
+        return accumulator;
+    }, {});
 }
 
 firebase.initializeApp(config)
